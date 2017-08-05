@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <pthread.h>
+
+pthread_mutex_t mutex;
+volatile int global = 0;
+
+void *compute(void *arg)
+{
+	int i;
+	for(i = 0;i < 100 * 100 * 100;i++){
+		pthread_mutex_lock(&mutex);
+		global++;
+		pthread_mutex_unlock(&mutex);
+	}
+	return NULL;
+}
+
+int main(int argc,char *argv[])
+{
+	int i;
+	pthread_t tids[3];
+	global = 0;
+	pthread_mutex_init(&mutex,NULL);
+	for(i = 0;i < 3;i++){
+		pthread_create(&tids[i],NULL,compute,NULL);
+	}
+
+	for(i = 0;i < 3;i++){
+		pthread_join(tids[i],NULL);
+	}
+	
+	printf("global = %d\n",global);
+	pthread_mutex_destroy(&mutex);
+	return 0;
+}
+
+
+
